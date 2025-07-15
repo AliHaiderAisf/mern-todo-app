@@ -6,6 +6,9 @@ import TodoForm from '../components/TodoForm';
 import TodoList from '../components/TodoList';
 import Spinner from '../components/Spinner';
 
+// ✅ Backend base URL
+const baseurl = "https://mern-todo-app-cm2o.onrender.com";
+
 const Home = () => {
   const [todos, setTodos] = useState([]);
   const [text, setText] = useState('');
@@ -15,7 +18,7 @@ const Home = () => {
   const fetchTodos = async () => {
     setLoading(true);
     try {
-      const { data } = await axios.get('/api/todos');
+      const { data } = await axios.get(`${baseurl}/api/todos`);
       setTodos(data);
     } catch {
       toast.error('Error fetching todos');
@@ -31,15 +34,16 @@ const Home = () => {
     if (!text.trim()) return toast.warn('Enter todo text');
     try {
       if (editing) {
-        const { data } = await axios.put(`/api/todos/${editing._id}`, { text });
+        const { data } = await axios.put(`${baseurl}/api/todos/${editing._id}`, { text });
         setTodos(todos.map(t => t._id === data._id ? data : t));
         toast.success('Updated todo');
       } else {
-        const { data } = await axios.post('/api/todos', { text });
+        const { data } = await axios.post(`${baseurl}/api/todos`, { text });
         setTodos([data, ...todos]);
         toast.success('Added todo');
       }
-      setText(''); setEditing(null);
+      setText('');
+      setEditing(null);
     } catch {
       toast.error('Save failed');
     }
@@ -53,7 +57,7 @@ const Home = () => {
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this?')) return;
     try {
-      await axios.delete(`/api/todos/${id}`);
+      await axios.delete(`${baseurl}/api/todos/${id}`);
       setTodos(todos.filter(t => t._id !== id));
       toast.success('Deleted');
     } catch {
@@ -63,7 +67,9 @@ const Home = () => {
 
   const toggleComplete = async (todo) => {
     try {
-      const { data } = await axios.put(`/api/todos/${todo._id}`, { completed: !todo.completed });
+      const { data } = await axios.put(`${baseurl}/api/todos/${todo._id}`, {
+        completed: !todo.completed
+      });
       setTodos(todos.map(t => t._id === data._id ? data : t));
       toast.info(data.completed ? 'Marked complete' : 'Marked incomplete');
     } catch {
@@ -72,7 +78,7 @@ const Home = () => {
   };
 
   return (
-    <div className="max-w-xl mx-auto p-4 ">
+    <div className="max-w-xl mx-auto p-4">
       <h1 className="text-3xl font-bold text-center mb-6">📝 Todo List</h1>
       <TodoForm
         text={text}
